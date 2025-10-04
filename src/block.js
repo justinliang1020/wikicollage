@@ -190,8 +190,11 @@ export function block(state) {
         ondblclick,
       },
       [
-        //TODO: how to get the path of the image src to work here
-        h("img", { src: `./${block.imageSrc}` }),
+        h("img", {
+          src: block.imageSrc.startsWith("file://")
+            ? block.imageSrc
+            : `file://${block.imageSrc}`,
+        }),
         ...(isSelected && !isEditing && !isMultiSelect
           ? Object.keys(RESIZE_HANDLERS).map((handle) =>
               ResizeHandle({

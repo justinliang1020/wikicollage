@@ -235,7 +235,7 @@ const ClipboardMonitor = (dispatch) => {
               dispatch((state) => {
                 const newState = addBlock(
                   state,
-                  result.filename,
+                  result.path,
                   String(Date.now()),
                 );
                 return newState;
