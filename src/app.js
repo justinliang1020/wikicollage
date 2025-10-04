@@ -1,5 +1,5 @@
 import { app, h } from "./packages/hyperapp/index.js";
-import { STATE_SAVE_PATH } from "./constants.js";
+import { STATE_SAVE_PATH, MEDIA_SAVE_PATH } from "./constants.js";
 import { createMementoManager } from "./memento.js";
 import { viewport, onkeydown } from "./viewport.js";
 import { panelsContainer } from "./panels.js";
@@ -221,14 +221,29 @@ const ClipboardMonitor = (dispatch) => {
         if (dataUrl !== lastImage) {
           lastImage = /** @type {string} */ (dataUrl);
           console.log("Clipboard image changed:", Date.now());
-          dispatch((state) => {
-            const newState = addBlock(
-              state,
-              String(Date.now()),
-              String(Date.now()),
+
+          // Save the image to user data file
+          const arrayBuffer = await blob.arrayBuffer();
+          try {
+            // @ts-ignore
+            const result = await window.fileAPI.saveImageFromBuffer(
+              arrayBuffer,
+              imageType,
+              MEDIA_SAVE_PATH,
             );
-            return newState;
-          });
+            if (result.success) {
+              dispatch((state) => {
+                const newState = addBlock(
+                  state,
+                  result.filename,
+                  String(Date.now()),
+                );
+                return newState;
+              });
+            }
+          } catch (error) {
+            console.error("Failed to save clipboard image:", error);
+          }
         }
       } else {
       }

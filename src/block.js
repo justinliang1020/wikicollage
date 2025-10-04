@@ -190,20 +190,8 @@ export function block(state) {
         ondblclick,
       },
       [
-        h(
-          "div",
-          {
-            style: {
-              pointerEvents:
-                isEditing || currentPage.isInteractMode ? null : "none",
-              width: "100%",
-              height: "100%",
-              overflow: "hidden",
-            },
-            class: BLOCK_CONTENTS_CLASS_NAME,
-          },
-          h("p", {}, text(block.imageSrc)),
-        ),
+        //TODO: how to get the path of the image src to work here
+        h("img", { src: `./${block.imageSrc}` }),
         ...(isSelected && !isEditing && !isMultiSelect
           ? Object.keys(RESIZE_HANDLERS).map((handle) =>
               ResizeHandle({
