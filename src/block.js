@@ -194,6 +194,11 @@ export function block(state) {
           src: block.imageSrc.startsWith("file://")
             ? block.imageSrc
             : `file://${block.imageSrc}`,
+          style: {
+            width: "100%",
+            height: "100%",
+            pointerEvents: "none",
+          },
         }),
         ...(isSelected && !isEditing && !isMultiSelect
           ? Object.keys(RESIZE_HANDLERS).map((handle) =>
