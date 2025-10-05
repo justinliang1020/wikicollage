@@ -139,11 +139,20 @@ function pageLabels(state) {
  * @returns {import("hyperapp").ElementVNode<State>} Wikipedia viewer element
  */
 function wikipediaViewer(state) {
+  const currentPage = getCurrentPage(state);
   return h("wiki-viewer", {
-    page: "Cat",
+    page: currentPage?.wikiPage,
     style: {
       height: "100%",
       display: "block",
+    },
+    //@ts-ignore custom `pagechanged` event
+    onpagechanged: (state, event) => {
+      const detail = /** @type {CustomEvent} */ (event).detail;
+      const newPage = detail.page;
+      return updateCurrentPage(state, {
+        wikiPage: newPage,
+      });
     },
   });
 }

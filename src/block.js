@@ -94,10 +94,12 @@ export function block(state) {
         // Normal mode, use move cursor
         cursorStyle = "move";
       }
+      console.log(block.pageSrc);
 
       return updateCurrentPage(state, {
         hoveringId: block.id,
         cursorStyle: cursorStyle,
+        wikiPage: block.pageSrc,
       });
     }
 

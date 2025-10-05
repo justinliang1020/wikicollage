@@ -104,7 +104,7 @@ class WikiViewer extends HTMLElement {
 
       // Debug: log href values to understand the format
       if (href) {
-        console.log("Link href:", href);
+        // console.log("Link href:", href);
       }
 
       // Check if this is a wiki article link
@@ -124,9 +124,9 @@ class WikiViewer extends HTMLElement {
         link.style.color = "#999";
         link.style.textDecoration = "line-through";
         link.title = "External link disabled in viewer";
-        console.log("Disabled external link:", href);
+        // console.log("Disabled external link:", href);
       } else if (isWikiLink) {
-        console.log("Keeping wiki link:", href);
+        // console.log("Keeping wiki link:", href);
       }
     });
 
@@ -158,12 +158,12 @@ class WikiViewer extends HTMLElement {
 
         if (newPage) {
           event.preventDefault();
-          console.log("Navigating to wiki page:", newPage);
+          // console.log("Navigating to wiki page:", newPage);
           this.setAttribute("page", newPage);
 
           // Dispatch custom event for external listeners
           this.dispatchEvent(
-            new CustomEvent("page-changed", {
+            new CustomEvent("pagechanged", {
               detail: { page: newPage },
             }),
           );
@@ -176,12 +176,12 @@ class WikiViewer extends HTMLElement {
         const input = this.shadowRoot.querySelector(".page-input");
         const newPage = input.value.trim();
         if (newPage) {
-          console.log("Navigating to wiki page:", newPage);
+          // console.log("Navigating to wiki page:", newPage);
           this.setAttribute("page", newPage);
 
           // Dispatch custom event for external listeners
           this.dispatchEvent(
-            new CustomEvent("page-changed", {
+            new CustomEvent("pagechanged", {
               detail: { page: newPage },
             }),
           );
@@ -197,12 +197,12 @@ class WikiViewer extends HTMLElement {
       ) {
         const newPage = event.target.value.trim();
         if (newPage) {
-          console.log("Navigating to wiki page:", newPage);
+          // console.log("Navigating to wiki page:", newPage);
           this.setAttribute("page", newPage);
 
           // Dispatch custom event for external listeners
           this.dispatchEvent(
-            new CustomEvent("page-changed", {
+            new CustomEvent("pagechanged", {
               detail: { page: newPage },
             }),
           );

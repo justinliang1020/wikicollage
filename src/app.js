@@ -220,7 +220,6 @@ const ClipboardMonitor = (dispatch) => {
 
         if (dataUrl !== lastImage) {
           lastImage = /** @type {string} */ (dataUrl);
-          console.log("Clipboard image changed:", Date.now());
 
           // Save the image to user data file
           const arrayBuffer = await blob.arrayBuffer();
@@ -235,6 +234,7 @@ const ClipboardMonitor = (dispatch) => {
               dispatch((state) => {
                 const currentPage = getCurrentPage(state);
                 if (!currentPage) return state;
+                console.log(currentPage.wikiPage);
                 const newState = addBlock(
                   state,
                   result.path,
