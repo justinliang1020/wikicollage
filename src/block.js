@@ -96,19 +96,11 @@ export function block(state) {
       }
       console.log(block.pageSrc);
 
-      const newState = updateCurrentPage(state, {
+      return updateCurrentPage(state, {
         hoveringId: block.id,
         cursorStyle: cursorStyle,
         wikiPage: block.pageSrc,
       });
-      
-      // Set the wiki viewer scroll position
-      const wikiViewer = document.querySelector('wiki-viewer');
-      if (wikiViewer && block.scrollPosition !== undefined) {
-        wikiViewer.setAttribute('scrollposition', block.scrollPosition.toString());
-      }
-      
-      return newState;
     }
 
     /**
