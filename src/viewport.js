@@ -478,16 +478,16 @@ export function onkeydown(state, event) {
         return deselectAllBlocks(state);
       }
       return state;
-    case "Delete":
-    case "Backspace":
-      // Only handle block deletion if not in input field, a block is selected, and not in edit mode
-      const selectedBlockId = getFirstSelectedBlockId(state);
-      if (selectedBlockId !== null && currentPage.editingId === null) {
-        event.preventDefault();
-        return deleteSelectedBlocks(state);
-      }
-      // Let browser handle regular text deletion
-      return state;
+    // case "Delete":
+    // case "Backspace":
+    //   // Only handle block deletion if not in input field, a block is selected, and not in edit mode
+    //   const selectedBlockId = getFirstSelectedBlockId(state);
+    //   if (selectedBlockId !== null && currentPage.editingId === null) {
+    //     event.preventDefault();
+    //     return deleteSelectedBlocks(state);
+    //   }
+    //   // Let browser handle regular text deletion
+    //   return state;
 
     case "c":
       // Handle copy shortcut (Ctrl+C or Cmd+C)

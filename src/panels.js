@@ -1,5 +1,5 @@
 import { h, text } from "./packages/hyperapp/index.js";
-import { sendToBack, sendToFront } from "./block.js";
+import { deleteSelectedBlocks, sendToBack, sendToFront } from "./block.js";
 import {
   createPage,
   switchPage,
@@ -192,7 +192,7 @@ function rightPanel(state) {
         return state;
       },
     },
-    [wikipediaViewer(state), orderButtons(state)],
+    [wikipediaViewer(state), blockButtons(state)],
   );
 }
 
@@ -201,7 +201,7 @@ function rightPanel(state) {
  * @param {State} state - Current application state
  * @returns {import("hyperapp").ElementVNode<State>} Program buttons element
  */
-function orderButtons(state) {
+function blockButtons(state) {
   const selectedBlock = getSelectedBlocks(state)[0];
   if (!selectedBlock) return h("div", {});
 
@@ -226,6 +226,16 @@ function orderButtons(state) {
           },
         },
         text("send to front"),
+      ),
+      h(
+        "button",
+        {
+          onclick: (state, event) => {
+            event.stopPropagation();
+            return deleteSelectedBlocks(state);
+          },
+        },
+        text("delete"),
       ),
     ]),
   ]);
