@@ -142,9 +142,10 @@ function wikipediaViewer(state) {
   const currentPage = getCurrentPage(state);
 
   // Find the currently hovered block to get its scroll position
-  const hoveredBlock = currentPage?.hoveringId
-    ? currentPage.blocks.find((block) => block.id === currentPage.hoveringId)
-    : null;
+  const hoveredBlock =
+    currentPage?.hoveringId && state.isOptionPressed
+      ? currentPage.blocks.find((block) => block.id === currentPage.hoveringId)
+      : null;
 
   // Use hovered block's viewport position if available, otherwise use current page viewport position
   const viewportPosition =
