@@ -80,7 +80,7 @@ export function block(state) {
         });
       }
 
-      // Set cursor based on current mode
+      // Set cursor based on current mode (global option cursor will override)
       let cursorStyle;
       if (isMultiSelect) {
         cursorStyle = "default";
@@ -96,16 +96,22 @@ export function block(state) {
       }
       console.log(block.pageSrc);
 
-      // Get current viewport position before changing to block's page
-      const wikiViewer = document.querySelector('wiki-viewer');
-      const currentViewportPosition = wikiViewer ? wikiViewer.saveViewportPosition() : null;
-      
-      return updateCurrentPage(state, {
+      // Only update wiki page when option key is held
+      let updateData = {
         hoveringId: block.id,
         cursorStyle: cursorStyle,
-        wikiPage: block.pageSrc,
-        wikiViewportPosition: currentViewportPosition,
-      });
+      };
+      
+      if (state.isOptionPressed) {
+        // Get current viewport position before changing to block's page
+        const wikiViewer = document.querySelector('wiki-viewer');
+        const currentViewportPosition = wikiViewer ? wikiViewer.saveViewportPosition() : null;
+        
+        updateData.wikiPage = block.pageSrc;
+        updateData.wikiViewportPosition = currentViewportPosition;
+      }
+      
+      return updateCurrentPage(state, updateData);
     }
 
     /**

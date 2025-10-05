@@ -580,7 +580,6 @@ export function viewport(state) {
       onpointermove,
       onpointerup,
       onwheel,
-
     },
     [
       h(

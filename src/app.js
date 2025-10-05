@@ -76,6 +76,11 @@ const KeyDown = (state, event) => {
         ...state,
         isShiftPressed: true,
       };
+    case "Alt":
+      return {
+        ...state,
+        isOptionPressed: true,
+      };
     case "s":
       // Handle save shortcut (Ctrl+S or Cmd+S)
       if (event.ctrlKey || event.metaKey) {
@@ -100,6 +105,11 @@ const KeyUp = (state, event) => {
         ...state,
         isShiftPressed: false,
       };
+    case "Alt":
+      return {
+        ...state,
+        isOptionPressed: false,
+      };
     default:
       return state;
   }
@@ -112,11 +122,15 @@ const KeyUp = (state, event) => {
  */
 function main(state) {
   const currentPage = state.pages.find((p) => p.id === state.currentPageId);
+  
+  // Override cursor style when option key is pressed
+  const cursorStyle = state.isOptionPressed ? "zoom-in" : (currentPage?.cursorStyle || "default");
+  
   return h(
     "main",
     {
       style: {
-        cursor: currentPage?.cursorStyle || "default",
+        cursor: cursorStyle,
       },
       class: {
         "dark-mode": state.isDarkMode,
@@ -141,6 +155,7 @@ function initialState() {
     notificationVisible: false,
     editingPageId: null,
     isShiftPressed: false,
+    isOptionPressed: false,
   };
 
   // Set currentPageId to the first page

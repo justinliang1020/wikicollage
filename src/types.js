@@ -100,6 +100,7 @@
  * @property {boolean} notificationVisible - Whether notification is visible
  * @property {string|null} editingPageId - ID of page currently being renamed
  * @property {boolean} isShiftPressed - Whether shift key is currently pressed
+ * @property {boolean} isOptionPressed - Whether option/alt key is currently pressed
  */
 
 /**
