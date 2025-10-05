@@ -1,18 +1,14 @@
 import { h, text } from "./packages/hyperapp/index.js";
-import { saveApplicationAndNotify } from "./utils.js";
-import { addBlock, sendToBack, sendToFront } from "./block.js";
-import { MEDIA_SAVE_PATH } from "./constants.js";
+import { sendToBack, sendToFront } from "./block.js";
 import {
   createPage,
   switchPage,
   deletePage,
   renamePage,
-  getCurrentPage,
   updateCurrentPage,
 } from "./pages.js";
-import { getHoveredBlock, getSelectedBlocks } from "./selection.js";
+import { getSelectedBlocks } from "./selection.js";
 import "./ace-editor.js";
-import { injectSharedBlockCSS } from "./program.js";
 
 /**
  * Creates the panels container with both layers panel, programs panel and floating toggle button
@@ -158,44 +154,10 @@ function rightPanel(state) {
       },
     },
     [
-      // h(
-      //   "button",
-      //   {
-      //     class: "programs-panel-toggle",
-      //     onclick: (state) => ({
-      //       ...state,
-      //       panelsVisible: !state.panelsVisible,
-      //     }),
-      //     title: "Toggle panels visibility",
-      //   },
-      //   text("◀"),
-      // ),
-      // h(
-      //   "button",
-      //   {
-      //     onclick: (state) => ({
-      //       ...state,
-      //       isDarkMode: !state.isDarkMode,
-      //     }),
-      //     title: "Toggle dark mode",
-      //   },
-      //   text(state.isDarkMode ? "☀️ Light" : "🌙 Dark"),
-      // ),
       h("iframe", {
         src: "https://en.wikipedia.org/",
         style: { height: "100%" },
       }),
-      // h(
-      //   "button",
-      //   {
-      //     onclick: (state) => [
-      //       state,
-      //       (dispatch) => saveApplicationAndNotify(dispatch, state),
-      //     ],
-      //   },
-      //   text("save"),
-      // ),
-      // pages(state),
       orderButtons(state),
     ],
   );
@@ -237,59 +199,6 @@ function orderButtons(state) {
 }
 
 /**
- * Collection of buttons
- * @param {State} state - Current application state
- * @returns {import("hyperapp").ElementVNode<State>} Program buttons element
- */
-function miscButtons(state) {
-  /**
-   * Collection of buttons
-   * @param {State} state - Current application state
-   * @returns {import("hyperapp").ElementVNode<State>} Program buttons element
-   */
-  const newProgramButton = (state) => {
-    const defaultProgram = `function view(state) {
-  return h("p", {}, text("hello world"))
-}
-`;
-
-    return h(
-      "button",
-      {
-        onclick: (state) => addBlock(state, defaultProgram),
-      },
-      text("new program"),
-    );
-  };
-
-  /**
-   * Collection of buttons
-   * @param {State} state - Current application state
-   * @returns {import("hyperapp").ElementVNode<State>} Program buttons element
-   */
-  const interactButton = (state) => {
-    const currentPage = getCurrentPage(state);
-    const isInteractMode = currentPage?.isInteractMode;
-
-    return h(
-      "button",
-      {
-        class: {
-          active: isInteractMode,
-        },
-        onclick: (state) =>
-          updateCurrentPage(state, {
-            isInteractMode: !isInteractMode,
-          }),
-      },
-      text("interact mode"),
-    );
-  };
-
-  return h("div", {}, [newProgramButton(state), interactButton(state)]);
-}
-
-/**
  * Toggles visibility of panels
  * @param {State} state - Current application state
  * @returns {import("hyperapp").ElementVNode<State>}
@@ -306,148 +215,5 @@ function panelsToggle(state) {
       title: "Show panels",
     },
     text("▶"),
-  );
-}
-
-/**
- * Shared ace editor component
- * @param {string} key - Key for state isolation
- * @param {string} value - Editor value
- * @param {string} mode - Editor mode (js, css, etc.)
- * @param {string} darkmode - Dark mode setting
- * @param {Function} onaceinput - Input change handler
- * @returns {import("hyperapp").ElementVNode<State>}
- */
-function aceEditor(key, value, mode, darkmode, onaceinput) {
-  return h("ace-editor", {
-    //@ts-ignore key to ensure proper state isolation between different blocks.
-    key: key,
-    editorvalue: value,
-    mode: mode,
-    darkmode: darkmode,
-    onaceinput: onaceinput,
-    onfocus: (state, event) => {
-      return updateCurrentPage(state, { isTextEditorFocused: true });
-    },
-    onfocusout: (state, event) => {
-      return updateCurrentPage(state, { isTextEditorFocused: false });
-    },
-    onpointerdown: (state, event) => {
-      event.stopPropagation();
-      return state;
-    },
-  });
-}
-
-/**
- * Toggles visibility of panels
- * @param {State} state - Current application state
- * @returns {import("hyperapp").ElementVNode<State>}
- */
-function programEditor(state) {
-  const selectedBlock = getSelectedBlocks(state)[0];
-  const hoveredBlock = getHoveredBlock(state);
-  const block = selectedBlock ? selectedBlock : hoveredBlock;
-
-  if (!block) {
-    return aceEditor(
-      -1,
-      "no block selected",
-      null,
-      state.isDarkMode,
-      () => state,
-    );
-  }
-
-  return aceEditor(
-    block.id,
-    block.src,
-    "javascript",
-    state.isDarkMode,
-    /**
-     * @param {State} state
-     * @param {Event} event
-     */
-    (state, event) => {
-      event.stopPropagation();
-      const currentPage = getCurrentPage(state);
-      if (!currentPage) return state;
-
-      return updateCurrentPage(state, {
-        blocks: currentPage.blocks.map((b) =>
-          //@ts-ignore uses custom `value` added to the event
-          b.id === block.id ? { ...b, program: event.value } : b,
-        ),
-      });
-    },
-  );
-}
-
-/**
- * Creates a program buttons component with filter functionality
- * @param {State} state - Current application state
- * @returns {import("hyperapp").ElementVNode<State>} Program buttons element
- */
-function cssEditor(state) {
-  const currentPage = getCurrentPage(state);
-  if (!currentPage) return h("div", {}, text("no current page"));
-
-  // This could be arbitrarily put anywhere, but just put it here for semantic similarity to CSS
-  injectSharedBlockCSS(currentPage.css);
-
-  return aceEditor(
-    `css-${currentPage.id}`,
-    currentPage.css,
-    "css",
-    state.isDarkMode,
-    /**
-     * @param {State} state
-     * @param {Event} event
-     */
-    (state, event) => {
-      event.stopPropagation();
-      const currentPage = getCurrentPage(state);
-      if (!currentPage) return state;
-
-      return updateCurrentPage(state, {
-        css: event.value,
-      });
-    },
-  );
-}
-
-/**
- * Creates a program buttons component with filter functionality
- * @param {State} state - Current application state
- * @returns {import("hyperapp").ElementVNode<State>} Program buttons element
- */
-function stateEditor(state) {
-  const currentPage = getCurrentPage(state);
-  if (!currentPage) return h("div", {}, text("no current page"));
-
-  return aceEditor(
-    `state-${currentPage.id}`,
-    JSON.stringify(currentPage.state, null, 2),
-    "json",
-    state.isDarkMode,
-    /**
-     * @param {State} state
-     * @param {Event} event
-     */
-    (state, event) => {
-      event.stopPropagation();
-      const currentPage = getCurrentPage(state);
-      if (!currentPage) return state;
-
-      try {
-        return updateCurrentPage(state, {
-          //@ts-ignore uses custom `value` added to the event
-          state: JSON.parse(event.value),
-        });
-      } catch {
-        console.error("could not parse state", event.value);
-        return state;
-      }
-    },
   );
 }
