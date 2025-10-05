@@ -98,24 +98,24 @@ class WikiViewer extends HTMLElement {
     const links = tempDiv.querySelectorAll("a");
     links.forEach((link) => {
       const href = link.getAttribute("href");
-      
+
       // Remove target attributes to prevent new windows/tabs
       link.removeAttribute("target");
-      
+
       // Debug: log href values to understand the format
       if (href) {
         console.log("Link href:", href);
       }
-      
+
       // Check if this is a wiki article link
-      const isWikiLink = href && (
-        href.startsWith("/wiki/") ||
-        href.startsWith("./") ||
-        href.startsWith("../")
-      );
-      
+      const isWikiLink =
+        href &&
+        (href.startsWith("/wiki/") ||
+          href.startsWith("./") ||
+          href.startsWith("../"));
+
       const isAnchorLink = href && href.startsWith("#");
-      
+
       // Only disable external links (not wiki links or anchor links)
       if (href && !isWikiLink && !isAnchorLink) {
         // Disable external links by removing href and styling them
@@ -136,38 +136,77 @@ class WikiViewer extends HTMLElement {
   setupEventListeners() {
     this.shadowRoot.addEventListener("click", (event) => {
       const link = event.target.closest("a");
-      if (!link) return;
+      if (link) {
+        const href = link.getAttribute("href");
 
-      const href = link.getAttribute("href");
+        // Match wiki links in various formats
+        let newPage = null;
 
-      // Match wiki links in various formats
-      let newPage = null;
-      
-      if (href && href.startsWith("/wiki/")) {
-        // Format: /wiki/Dog
-        newPage = decodeURIComponent(href.replace("/wiki/", ""));
-      } else if (href && href.startsWith("./")) {
-        // Format: ./Dog
-        newPage = decodeURIComponent(href.replace("./", ""));
-      } else if (href && href.match(/^\.\.\/.*\/(.+)$/)) {
-        // Format: ../wiki/Dog or similar
-        const match = href.match(/^\.\.\/.*\/(.+)$/);
-        if (match) {
-          newPage = decodeURIComponent(match[1]);
+        if (href && href.startsWith("/wiki/")) {
+          // Format: /wiki/Dog
+          newPage = decodeURIComponent(href.replace("/wiki/", ""));
+        } else if (href && href.startsWith("./")) {
+          // Format: ./Dog
+          newPage = decodeURIComponent(href.replace("./", ""));
+        } else if (href && href.match(/^\.\.\/.*\/(.+)$/)) {
+          // Format: ../wiki/Dog or similar
+          const match = href.match(/^\.\.\/.*\/(.+)$/);
+          if (match) {
+            newPage = decodeURIComponent(match[1]);
+          }
+        }
+
+        if (newPage) {
+          event.preventDefault();
+          console.log("Navigating to wiki page:", newPage);
+          this.setAttribute("page", newPage);
+
+          // Dispatch custom event for external listeners
+          this.dispatchEvent(
+            new CustomEvent("page-changed", {
+              detail: { page: newPage },
+            }),
+          );
+        }
+        return;
+      }
+
+      // Handle navigate button click
+      if (event.target.classList.contains("navigate-btn")) {
+        const input = this.shadowRoot.querySelector(".page-input");
+        const newPage = input.value.trim();
+        if (newPage) {
+          console.log("Navigating to wiki page:", newPage);
+          this.setAttribute("page", newPage);
+
+          // Dispatch custom event for external listeners
+          this.dispatchEvent(
+            new CustomEvent("page-changed", {
+              detail: { page: newPage },
+            }),
+          );
         }
       }
-      
-      if (newPage) {
-        event.preventDefault();
-        console.log("Navigating to wiki page:", newPage);
-        this.setAttribute("page", newPage);
+    });
 
-        // Dispatch custom event for external listeners
-        this.dispatchEvent(
-          new CustomEvent("page-changed", {
-            detail: { page: newPage },
-          }),
-        );
+    // Handle Enter key in input
+    this.shadowRoot.addEventListener("keydown", (event) => {
+      if (
+        event.target.classList.contains("page-input") &&
+        event.key === "Enter"
+      ) {
+        const newPage = event.target.value.trim();
+        if (newPage) {
+          console.log("Navigating to wiki page:", newPage);
+          this.setAttribute("page", newPage);
+
+          // Dispatch custom event for external listeners
+          this.dispatchEvent(
+            new CustomEvent("page-changed", {
+              detail: { page: newPage },
+            }),
+          );
+        }
       }
     });
   }
@@ -205,15 +244,42 @@ class WikiViewer extends HTMLElement {
           color: #000;
         }
         
-        .current-page {
+        .page-controls {
           margin: 0 0 0.5em 0;
-          color: #54595d;
-          font-size: 13px;
+          display: flex;
+          align-items: center;
+          gap: 0.5em;
+          flex-wrap: wrap;
         }
         
-        .current-page b {
-          color: #000;
-          font-weight: 600;
+        .page-controls label {
+          color: #54595d;
+          font-size: 13px;
+          white-space: nowrap;
+        }
+        
+        .page-input {
+          padding: 0.3em 0.5em;
+          border: 1px solid #a2a9b1;
+          border-radius: 2px;
+          font-size: 13px;
+          min-width: 200px;
+          flex: 1;
+        }
+        
+        .navigate-btn {
+          padding: 0.3em 0.8em;
+          background-color: #0645ad;
+          color: white;
+          border: none;
+          border-radius: 2px;
+          font-size: 13px;
+          cursor: pointer;
+          white-space: nowrap;
+        }
+        
+        .navigate-btn:hover {
+          background-color: #0b0080;
         }
         
         .loading {
@@ -448,12 +514,22 @@ class WikiViewer extends HTMLElement {
             color: #e6edf3;
           }
           
-          .current-page {
+          .page-controls label {
             color: #7d8590;
           }
           
-          .current-page b {
+          .page-input {
+            background-color: #21262d;
+            border-color: #30363d;
             color: #e6edf3;
+          }
+          
+          .navigate-btn {
+            background-color: #58a6ff;
+          }
+          
+          .navigate-btn:hover {
+            background-color: #bc8cff;
           }
           
           .content {
@@ -538,8 +614,12 @@ class WikiViewer extends HTMLElement {
       
       <div class="container">
         <div class="header">
-          <h1 class="title">Wikipedia Viewer</h1>
-          <p class="current-page">Currently viewing: <b>${this.currentPage}</b></p>
+          <h1 class="title">Wikipedia</h1>
+          <div class="page-controls">
+            <label for="page-input">View page:</label>
+            <input type="text" class="page-input" value="${this.currentPage}" placeholder="Enter Wikipedia page name">
+            <button class="navigate-btn">Go</button>
+          </div>
           ${this.loading ? '<p class="loading">Loading...</p>' : ""}
         </div>
         <div class="content">${this.content}</div>
@@ -550,4 +630,3 @@ class WikiViewer extends HTMLElement {
 
 // Register the custom element
 customElements.define("wiki-viewer", WikiViewer);
-
