@@ -179,45 +179,86 @@ class WikiViewer extends HTMLElement {
           display: block;
           height: 100%;
           overflow-y: auto;
-          font-family: sans-serif;
+          font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Lato, Helvetica, Arial, sans-serif;
+          background-color: #ffffff;
+          color: #222222;
         }
         
         .container {
-          max-width: 700px;
+          max-width: 960px;
           margin: 0 auto;
-          padding: 20px;
+          padding: 0 1em;
           line-height: 1.6;
         }
         
         .header {
-          margin-bottom: 20px;
+          border-bottom: 3px solid #a2a9b1;
+          margin-bottom: 1em;
+          padding-bottom: 0.5em;
         }
         
         .title {
-          margin: 0 0 10px 0;
-          font-size: 24px;
-          font-weight: bold;
+          margin: 0.5em 0 0.2em 0;
+          font-size: 28px;
+          font-weight: normal;
+          font-family: "Linux Libertine", "Georgia", "Times", serif;
+          color: #000;
         }
         
         .current-page {
-          margin: 0;
-          color: #666;
+          margin: 0 0 0.5em 0;
+          color: #54595d;
+          font-size: 13px;
         }
         
         .current-page b {
           color: #000;
+          font-weight: 600;
         }
         
         .loading {
-          color: #666;
+          color: #54595d;
           font-style: italic;
+          font-size: 14px;
         }
         
         .content {
           line-height: 1.6;
+          font-size: 14px;
         }
         
         /* Wikipedia content styles */
+        .content h1, .content h2, .content h3, .content h4, .content h5, .content h6 {
+          font-family: "Linux Libertine", "Georgia", "Times", serif;
+          font-weight: normal;
+          margin: 0.5em 0;
+          border-bottom: none;
+          color: #000;
+        }
+        
+        .content h1 {
+          font-size: 2.3em;
+          border-bottom: 3px solid #a2a9b1;
+          padding-bottom: 0.25em;
+          margin-bottom: 0.6em;
+        }
+        
+        .content h2 {
+          font-size: 1.8em;
+          border-bottom: 1px solid #a2a9b1;
+          padding-bottom: 0.25em;
+          margin-top: 1em;
+        }
+        
+        .content h3 {
+          font-size: 1.4em;
+          margin-top: 0.8em;
+        }
+        
+        .content p {
+          margin: 0.5em 0 1em 0;
+        }
+        
         .content a {
           color: #0645ad;
           text-decoration: none;
@@ -231,6 +272,14 @@ class WikiViewer extends HTMLElement {
           color: #0b0080;
         }
         
+        .content a.new {
+          color: #ba0000;
+        }
+        
+        .content a.external {
+          color: #36b;
+        }
+        
         .content img {
           max-width: 100%;
           height: auto;
@@ -239,30 +288,52 @@ class WikiViewer extends HTMLElement {
         .content table {
           border-collapse: collapse;
           margin: 1em 0;
+          background-color: #ffffff;
         }
         
         .content th,
         .content td {
           border: 1px solid #a2a9b1;
           padding: 0.2em 0.4em;
+          vertical-align: top;
         }
         
         .content th {
           background-color: #eaecf0;
+          font-weight: bold;
+          text-align: center;
+        }
+        
+        .content .wikitable {
+          border: 1px solid #a2a9b1;
+          border-collapse: collapse;
+          margin: 1em 0;
+          background-color: #f8f9fa;
         }
         
         .content blockquote {
           border-left: 4px solid #eaecf0;
           margin: 1em 0;
           padding-left: 1em;
-          color: #666;
+          color: #54595d;
+          font-style: italic;
         }
         
         .content pre {
-          background-color: #f8f9fa;
-          border: 1px solid #eaecf0;
+          background-color: #f6f6f6;
+          border: 1px solid #ddd;
           padding: 1em;
           overflow-x: auto;
+          font-family: "Courier New", Courier, monospace;
+          font-size: 13px;
+        }
+        
+        .content code {
+          background-color: #f6f6f6;
+          border: 1px solid #ddd;
+          padding: 1px 4px;
+          font-family: "Courier New", Courier, monospace;
+          font-size: 13px;
         }
         
         .content .infobox {
@@ -272,61 +343,195 @@ class WikiViewer extends HTMLElement {
           margin: 0 0 1em 1em;
           border: 1px solid #a2a9b1;
           background-color: #f8f9fa;
-          padding: 0.2em;
+          padding: 3px;
+          font-size: 88%;
+          line-height: 1.5em;
+        }
+        
+        .content .infobox th {
+          background-color: #ccccff;
+          text-align: center;
+          font-size: 125%;
         }
         
         .content .navbox {
           border: 1px solid #a2a9b1;
           clear: both;
           font-size: 88%;
-          margin: auto;
+          margin: 1em auto 0;
           padding: 1px;
           width: 100%;
+          background-color: #f8f9fa;
+        }
+        
+        .content .thumbinner {
+          border: 1px solid #c8ccd1;
+          padding: 3px;
+          background-color: #f8f9fa;
+          font-size: 94%;
+          text-align: center;
+          overflow: hidden;
+          min-width: 100px;
+        }
+        
+        .content .thumb {
+          margin-bottom: 0.5em;
+        }
+        
+        .content .tright {
+          float: right;
+          clear: right;
+          margin: 0.5em 0 1.3em 1.4em;
+        }
+        
+        .content .tleft {
+          float: left;
+          clear: left;
+          margin: 0.5em 1.4em 1.3em 0;
+        }
+        
+        .content .thumbcaption {
+          border: none;
+          line-height: 1.4em;
+          padding: 3px;
+          font-size: 94%;
+          text-align: left;
+        }
+        
+        .content ul, .content ol {
+          margin: 0.3em 0 0 1.6em;
+          padding: 0;
+        }
+        
+        .content li {
+          margin-bottom: 0.1em;
+        }
+        
+        .content .mbox {
+          background-color: #f8f9fa;
+          border: 1px solid #a2a9b1;
+          padding: 0.25em 0.9em;
+          margin: 0.5em 0;
+        }
+        
+        .content .hatnote {
+          font-style: italic;
+          padding-left: 1.6em;
+          margin-bottom: 0.5em;
+        }
+        
+        /* Wikipedia-specific class styling */
+        .content .sidebar {
+          float: right;
+          clear: right;
+          margin: 0 0 1em 1em;
+          background: #f8f9fa;
+          border: 1px solid #a2a9b1;
+          padding: 0.2em;
+          width: 22.0em;
+          font-size: 88%;
+          line-height: 1.25em;
         }
         
         /* Dark mode support */
         @media (prefers-color-scheme: dark) {
+          :host {
+            background-color: #0d1117;
+            color: #e6edf3;
+          }
+          
+          .header {
+            border-bottom-color: #30363d;
+          }
+          
+          .title {
+            color: #e6edf3;
+          }
+          
           .current-page {
-            color: #ccc;
+            color: #7d8590;
           }
           
           .current-page b {
-            color: #fff;
+            color: #e6edf3;
           }
           
           .content {
-            color: #fff;
+            color: #e6edf3;
+          }
+          
+          .content h1, .content h2, .content h3, .content h4, .content h5, .content h6 {
+            color: #e6edf3;
+            border-bottom-color: #30363d;
           }
           
           .content a {
-            color: #6ab7ff;
+            color: #58a6ff;
           }
           
           .content a:visited {
-            color: #d19fe8;
+            color: #bc8cff;
+          }
+          
+          .content a.new {
+            color: #f85149;
+          }
+          
+          .content table {
+            background-color: #161b22;
           }
           
           .content th {
-            background-color: #2a2a2a;
+            background-color: #21262d;
           }
           
           .content th,
           .content td {
-            border-color: #555;
+            border-color: #30363d;
+          }
+          
+          .content .wikitable {
+            background-color: #0d1117;
+            border-color: #30363d;
           }
           
           .content pre {
-            background-color: #2a2a2a;
-            border-color: #555;
+            background-color: #161b22;
+            border-color: #30363d;
+          }
+          
+          .content code {
+            background-color: #161b22;
+            border-color: #30363d;
           }
           
           .content .infobox {
-            background-color: #2a2a2a;
-            border-color: #555;
+            background-color: #161b22;
+            border-color: #30363d;
+          }
+          
+          .content .infobox th {
+            background-color: #1f2937;
           }
           
           .content .navbox {
-            border-color: #555;
+            border-color: #30363d;
+            background-color: #161b22;
+          }
+          
+          .content .thumbinner {
+            background-color: #161b22;
+            border-color: #30363d;
+          }
+          
+          .content .mbox {
+            background-color: #161b22;
+            border-color: #30363d;
+          }
+          
+          .content .sidebar {
+            background-color: #161b22;
+            border-color: #30363d;
           }
         }
       </style>
