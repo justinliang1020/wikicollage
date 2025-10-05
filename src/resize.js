@@ -276,8 +276,7 @@ export function ResizeHandle({ handle, zoom, context }) {
 
 /**
  * Handle pointermove during resize.
- * Computes new dimensions for either a single block or the multi-select bounding box,
- * applies aspect ratio locking when Shift is pressed, and updates page blocks.
+ * Computes new dimensions for either a single block or the multi-select bounding box
  *
  * @param {State} state - Current application state
  * @param {PointerEvent} event - Pointer event from the canvas
@@ -314,14 +313,6 @@ export function handleResizePointerMove(state, event) {
       percentX: canvasX,
       percentY: canvasY,
     });
-
-    if (state.isShiftPressed) {
-      newBBox = applyAspectRatioConstraint(
-        newBBox,
-        virtualBoundingBox,
-        page.resizing.handle,
-      );
-    }
 
     const scaleX = newBBox.width / page.resizing.startWidth;
     const scaleY = newBBox.height / page.resizing.startHeight;
@@ -361,21 +352,6 @@ export function handleResizePointerMove(state, event) {
   if (!handler) return state;
 
   let newDimensions = handler(block, { percentX: canvasX, percentY: canvasY });
-
-  if (state.isShiftPressed) {
-    const originalBlock = {
-      ...block,
-      width: page.resizing.startWidth,
-      height: page.resizing.startHeight,
-      x: page.resizing.startX,
-      y: page.resizing.startY,
-    };
-    newDimensions = applyAspectRatioConstraint(
-      newDimensions,
-      originalBlock,
-      page.resizing.handle,
-    );
-  }
 
   const finalWidth = Math.max(MIN_SIZE, newDimensions.width);
   const finalHeight = Math.max(MIN_SIZE, newDimensions.height);
