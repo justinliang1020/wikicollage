@@ -9,7 +9,6 @@ import {
   saveApplicationAndNotify,
 } from "./utils.js";
 import { defaultPage, getCurrentPage, updateCurrentPage } from "./pages.js";
-import { programSubscriptionManager } from "./program.js";
 import { addBlock } from "./block.js";
 
 initialize();
@@ -122,10 +121,12 @@ const KeyUp = (state, event) => {
  */
 function main(state) {
   const currentPage = state.pages.find((p) => p.id === state.currentPageId);
-  
+
   // Override cursor style when option key is pressed
-  const cursorStyle = state.isOptionPressed ? "zoom-in" : (currentPage?.cursorStyle || "default");
-  
+  const cursorStyle = state.isOptionPressed
+    ? "zoom-in"
+    : currentPage?.cursorStyle || "default";
+
   return h(
     "main",
     {
@@ -250,11 +251,13 @@ const ClipboardMonitor = (dispatch) => {
                 const currentPage = getCurrentPage(state);
                 if (!currentPage) return state;
                 console.log(currentPage.wikiPage);
-                
+
                 // Get the current scroll position from the wiki viewer
-                const wikiViewer = document.querySelector('wiki-viewer');
-                const viewportPosition = wikiViewer ? wikiViewer.saveViewportPosition() : null;
-                
+                const wikiViewer = document.querySelector("wiki-viewer");
+                const viewportPosition = wikiViewer
+                  ? wikiViewer.saveViewportPosition()
+                  : null;
+
                 const newState = addBlock(
                   state,
                   result.path,
@@ -370,7 +373,6 @@ async function initialize() {
     node: /** @type {Node} */ (document.getElementById("app")),
     subscriptions: (state) => [
       [themeChangeSubscription, {}],
-      [programSubscriptionManager, {}],
       onKeyDown(KeyDown),
       onKeyUp(KeyUp),
       [ClipboardMonitor, {}],

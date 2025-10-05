@@ -9,7 +9,6 @@ import {
   getCurrentPage,
 } from "./pages.js";
 import { getSelectedBlocks } from "./selection.js";
-import "./ace-editor.js";
 import "./wiki-viewer.js";
 
 /**
