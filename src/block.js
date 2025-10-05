@@ -41,6 +41,7 @@ export function block(state) {
     const isMultiSelect = selectedBlocks.length > 1;
     const isEditing = currentPage.editingId === block.id;
     const isHovering = currentPage.hoveringId === block.id;
+    const isOptionPressed = state.isOptionPressed;
 
     // Having small borders, i.e. 1px, can cause rendering glitches to occur when CSS transform translations are applied such as zooming out
     // Scale outline thickness inversely with zoom to maintain consistent visual appearance
@@ -51,6 +52,7 @@ export function block(state) {
         isMultiSelect,
         isSelected,
         isPreviewSelected,
+        isOptionPressed,
       },
       state,
     );
@@ -101,16 +103,18 @@ export function block(state) {
         hoveringId: block.id,
         cursorStyle: cursorStyle,
       };
-      
+
       if (state.isOptionPressed) {
         // Get current viewport position before changing to block's page
-        const wikiViewer = document.querySelector('wiki-viewer');
-        const currentViewportPosition = wikiViewer ? wikiViewer.saveViewportPosition() : null;
-        
+        const wikiViewer = document.querySelector("wiki-viewer");
+        const currentViewportPosition = wikiViewer
+          ? wikiViewer.saveViewportPosition()
+          : null;
+
         updateData.wikiPage = block.pageSrc;
         updateData.wikiViewportPosition = currentViewportPosition;
       }
-      
+
       return updateCurrentPage(state, updateData);
     }
 
@@ -119,19 +123,21 @@ export function block(state) {
      * @param {PointerEvent} event
      * @returns {import("./packages/hyperapp").Dispatchable<State>}
      */
-     function onpointerleave(state, event) {
-       event.stopPropagation();
-       
-       // Get current viewport position from wiki viewer before clearing hover
-       const wikiViewer = document.querySelector('wiki-viewer');
-       const currentViewportPosition = wikiViewer ? wikiViewer.saveViewportPosition() : null;
-       
-       return updateCurrentPage(state, {
-         hoveringId: null,
-         cursorStyle: "default",
-         wikiViewportPosition: currentViewportPosition,
-       });
-     }
+    function onpointerleave(state, event) {
+      event.stopPropagation();
+
+      // Get current viewport position from wiki viewer before clearing hover
+      const wikiViewer = document.querySelector("wiki-viewer");
+      const currentViewportPosition = wikiViewer
+        ? wikiViewer.saveViewportPosition()
+        : null;
+
+      return updateCurrentPage(state, {
+        hoveringId: null,
+        cursorStyle: "default",
+        wikiViewportPosition: currentViewportPosition,
+      });
+    }
 
     /**
      * @param {State} state
@@ -246,7 +252,7 @@ function createOutline(width, color, zoom) {
 
 /**
  * Determines the outline style for a block based on its current state
- * @param {{isHovering: boolean, isEditing: boolean, isMultiSelect: boolean, isSelected: boolean, isPreviewSelected: boolean}} blockState - Block state flags
+ * @param {{isHovering: boolean, isEditing: boolean, isMultiSelect: boolean, isSelected: boolean, isPreviewSelected: boolean, isOptionPressed: boolean}} blockState - Block state flags
  * @param {State} state - Application state
  * @returns {string|null} CSS outline property value
  */
@@ -257,6 +263,7 @@ function getBlockOutline(blockState, state) {
     isMultiSelect,
     isSelected,
     isPreviewSelected,
+    isOptionPressed,
   } = blockState;
 
   const currentPage = getCurrentPage(state);
@@ -294,6 +301,14 @@ function getBlockOutline(blockState, state) {
     return createOutline(
       OUTLINE_WIDTHS.THIN,
       OUTLINE_COLORS.HOVERING,
+      currentPage.zoom,
+    );
+  }
+
+  if (isOptionPressed) {
+    return createOutline(
+      OUTLINE_WIDTHS.THIN,
+      OUTLINE_COLORS.INTERACT_MODE,
       currentPage.zoom,
     );
   }
