@@ -9,6 +9,7 @@ class WikiViewer extends HTMLElement {
     this.currentPage = "Cat";
     this.content = "";
     this.loading = false;
+    this.pendingScrollPosition = undefined;
     this.render();
     this.setupEventListeners();
   }
@@ -35,10 +36,7 @@ class WikiViewer extends HTMLElement {
         break;
       case "scrollposition":
         const scrollPos = parseInt(newValue) || 0;
-        // Set scroll position after a short delay to ensure content is rendered
-        requestAnimationFrame(() => {
-          this.scrollTop = scrollPos;
-        });
+        this.pendingScrollPosition = scrollPos;
         break;
     }
     this.render();
@@ -69,6 +67,15 @@ class WikiViewer extends HTMLElement {
     }
 
     this.render();
+    
+    // Apply pending scroll position after content is rendered
+    if (this.pendingScrollPosition !== undefined) {
+      requestAnimationFrame(() => {
+        this.scrollTop = this.pendingScrollPosition;
+        this.pendingScrollPosition = undefined;
+      });
+    }
+    
     this.dispatchEvent(
       new CustomEvent("page-loaded", {
         detail: { page: this.currentPage, content: this.content },
