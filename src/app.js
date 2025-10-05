@@ -8,7 +8,7 @@ import {
   saveApplication,
   saveApplicationAndNotify,
 } from "./utils.js";
-import { defaultPage, updateCurrentPage } from "./pages.js";
+import { defaultPage, getCurrentPage, updateCurrentPage } from "./pages.js";
 import { programSubscriptionManager } from "./program.js";
 import { addBlock } from "./block.js";
 
@@ -233,10 +233,12 @@ const ClipboardMonitor = (dispatch) => {
             );
             if (result.success) {
               dispatch((state) => {
+                const currentPage = getCurrentPage(state);
+                if (!currentPage) return state;
                 const newState = addBlock(
                   state,
                   result.path,
-                  String(Date.now()),
+                  currentPage.wikiPage,
                 );
                 return newState;
               });
