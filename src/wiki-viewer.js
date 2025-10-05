@@ -94,13 +94,39 @@ class WikiViewer extends HTMLElement {
       }
     });
 
-    // Fix link hrefs to be absolute for external links
+    // Process links to handle navigation properly
     const links = tempDiv.querySelectorAll("a");
     links.forEach((link) => {
       const href = link.getAttribute("href");
-      if (href && href.startsWith("/") && !href.startsWith("/wiki/")) {
-        // Non-wiki relative URLs
-        link.setAttribute("href", "https://en.wikipedia.org" + href);
+      
+      // Remove target attributes to prevent new windows/tabs
+      link.removeAttribute("target");
+      
+      // Debug: log href values to understand the format
+      if (href) {
+        console.log("Link href:", href);
+      }
+      
+      // Check if this is a wiki article link
+      const isWikiLink = href && (
+        href.startsWith("/wiki/") ||
+        href.startsWith("./") ||
+        href.startsWith("../")
+      );
+      
+      const isAnchorLink = href && href.startsWith("#");
+      
+      // Only disable external links (not wiki links or anchor links)
+      if (href && !isWikiLink && !isAnchorLink) {
+        // Disable external links by removing href and styling them
+        link.removeAttribute("href");
+        link.style.pointerEvents = "none";
+        link.style.color = "#999";
+        link.style.textDecoration = "line-through";
+        link.title = "External link disabled in viewer";
+        console.log("Disabled external link:", href);
+      } else if (isWikiLink) {
+        console.log("Keeping wiki link:", href);
       }
     });
 
@@ -114,10 +140,26 @@ class WikiViewer extends HTMLElement {
 
       const href = link.getAttribute("href");
 
-      // Match only internal wiki links like /wiki/Dog
+      // Match wiki links in various formats
+      let newPage = null;
+      
       if (href && href.startsWith("/wiki/")) {
+        // Format: /wiki/Dog
+        newPage = decodeURIComponent(href.replace("/wiki/", ""));
+      } else if (href && href.startsWith("./")) {
+        // Format: ./Dog
+        newPage = decodeURIComponent(href.replace("./", ""));
+      } else if (href && href.match(/^\.\.\/.*\/(.+)$/)) {
+        // Format: ../wiki/Dog or similar
+        const match = href.match(/^\.\.\/.*\/(.+)$/);
+        if (match) {
+          newPage = decodeURIComponent(match[1]);
+        }
+      }
+      
+      if (newPage) {
         event.preventDefault();
-        const newPage = decodeURIComponent(href.replace("/wiki/", ""));
+        console.log("Navigating to wiki page:", newPage);
         this.setAttribute("page", newPage);
 
         // Dispatch custom event for external listeners
