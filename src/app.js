@@ -238,7 +238,7 @@ const ClipboardMonitor = (dispatch) => {
                 
                 // Get the current scroll position from the wiki viewer
                 const wikiViewer = document.querySelector('wiki-viewer');
-                const scrollPosition = wikiViewer ? wikiViewer.scrollTop : 0;
+                const viewportPosition = wikiViewer ? wikiViewer.saveViewportPosition() : null;
                 
                 const newState = addBlock(
                   state,
@@ -248,7 +248,7 @@ const ClipboardMonitor = (dispatch) => {
                   null,
                   200,
                   200,
-                  scrollPosition,
+                  viewportPosition,
                 );
                 return newState;
               });

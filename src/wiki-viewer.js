@@ -9,13 +9,13 @@ class WikiViewer extends HTMLElement {
     this.currentPage = "Cat";
     this.content = "";
     this.loading = false;
-    this.pendingScrollPosition = undefined;
+    this.pendingViewportPosition = undefined;
     this.render();
     this.setupEventListeners();
   }
 
   static get observedAttributes() {
-    return ["page", "content", "loading", "scrollposition"];
+    return ["page", "content", "loading", "viewportposition"];
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -34,9 +34,13 @@ class WikiViewer extends HTMLElement {
       case "loading":
         this.loading = newValue === "true";
         break;
-      case "scrollposition":
-        const scrollPos = parseInt(newValue) || 0;
-        this.pendingScrollPosition = scrollPos;
+      case "viewportposition":
+        try {
+          this.pendingViewportPosition = newValue ? JSON.parse(newValue) : null;
+        } catch (e) {
+          console.warn("Invalid viewport position data:", newValue);
+          this.pendingViewportPosition = null;
+        }
         break;
     }
     this.render();
@@ -68,17 +72,21 @@ class WikiViewer extends HTMLElement {
 
     this.render();
     
-    // Apply pending scroll position after content is rendered
-    if (this.pendingScrollPosition !== undefined) {
+    // Apply pending viewport position after content is rendered
+    if (this.pendingViewportPosition !== undefined) {
       requestAnimationFrame(() => {
-        this.scrollTop = this.pendingScrollPosition;
-        this.pendingScrollPosition = undefined;
+        this.restoreViewportPosition(this.pendingViewportPosition);
+        this.pendingViewportPosition = undefined;
       });
     }
     
     this.dispatchEvent(
       new CustomEvent("page-loaded", {
-        detail: { page: this.currentPage, content: this.content },
+        detail: { 
+          page: this.currentPage, 
+          content: this.content,
+          getViewportPosition: () => this.saveViewportPosition()
+        },
       }),
     );
   }
@@ -147,10 +155,126 @@ class WikiViewer extends HTMLElement {
     return tempDiv.innerHTML;
   }
 
+  /**
+   * Saves the current viewport position based on visible elements
+   * @returns {Object|null} Viewport position data
+   */
+  saveViewportPosition() {
+    const container = this.shadowRoot.querySelector('.content');
+    if (!container) return null;
+    
+    const elements = container.querySelectorAll('h1, h2, h3, h4, h5, h6, p');
+    
+    for (const el of elements) {
+      const rect = el.getBoundingClientRect();
+      const containerRect = this.getBoundingClientRect();
+      
+      // Check if element is visible in the top portion of the viewport
+      if (rect.top >= containerRect.top && rect.top <= containerRect.top + window.innerHeight * 0.3) {
+        const selector = this.getElementSelector(el);
+        if (selector) {
+          return {
+            type: 'element',
+            selector: selector,
+            offsetFromTop: rect.top - containerRect.top,
+            scrollPosition: this.scrollTop // Fallback
+          };
+        }
+      }
+    }
+    
+    // Fallback to scroll position if no suitable element found
+    return { 
+      type: 'scroll', 
+      scrollPosition: this.scrollTop 
+    };
+  }
+
+  /**
+   * Generates a unique selector for an element
+   * @param {Element} element - The element to generate a selector for
+   * @returns {string|null} CSS selector or null if unable to generate
+   */
+  getElementSelector(element) {
+    if (!element) return null;
+    
+    // Try ID first
+    if (element.id) {
+      return `#${element.id}`;
+    }
+    
+    // Use tag name + text content for headings
+    if (element.tagName.match(/^H[1-6]$/)) {
+      const textContent = element.textContent.trim().substring(0, 50);
+      if (textContent) {
+        return `${element.tagName.toLowerCase()}:contains("${textContent.replace(/"/g, '\\"')}")`;
+      }
+    }
+    
+    // For paragraphs, use first 30 characters of text
+    if (element.tagName === 'P') {
+      const textContent = element.textContent.trim().substring(0, 30);
+      if (textContent) {
+        return `p:contains("${textContent.replace(/"/g, '\\"')}")`;
+      }
+    }
+    
+    return null;
+  }
+
+  /**
+   * Restores viewport position from saved data
+   * @param {Object|null} viewportPosition - Saved viewport position data
+   */
+  restoreViewportPosition(viewportPosition) {
+    if (!viewportPosition) return;
+    
+    if (viewportPosition.type === 'element' && viewportPosition.selector) {
+      // Try to find element using text content matching since :contains() is not standard CSS
+      const container = this.shadowRoot.querySelector('.content');
+      if (!container) return;
+      
+      let targetElement = null;
+      
+      // Extract text from selector for manual matching
+      const containsMatch = viewportPosition.selector.match(/:contains\("([^"]+)"\)$/);
+      if (containsMatch) {
+        const searchText = containsMatch[1];
+        const tagName = viewportPosition.selector.split(':')[0].toUpperCase();
+        
+        const elements = container.querySelectorAll(tagName);
+        for (const el of elements) {
+          if (el.textContent.includes(searchText)) {
+            targetElement = el;
+            break;
+          }
+        }
+      } else {
+        // Try direct selector (for IDs)
+        targetElement = container.querySelector(viewportPosition.selector);
+      }
+      
+      if (targetElement) {
+        targetElement.scrollIntoView({ behavior: 'instant', block: 'start' });
+        // Adjust for the saved offset
+        if (viewportPosition.offsetFromTop) {
+          this.scrollTop = Math.max(0, this.scrollTop - viewportPosition.offsetFromTop);
+        }
+        return;
+      }
+    }
+    
+    // Fallback to scroll position
+    if (viewportPosition.scrollPosition !== undefined) {
+      this.scrollTop = viewportPosition.scrollPosition;
+    }
+  }
+
   setupEventListeners() {
-    // Log scroll position on every scroll
+    // Log current viewport position on every scroll (for debugging)
     this.addEventListener("scroll", (event) => {
-      console.log('Current scroll position:', this.scrollTop);
+      const position = this.saveViewportPosition();
+      console.log('Current viewport position:', position);
     });
 
     this.shadowRoot.addEventListener("click", (event) => {

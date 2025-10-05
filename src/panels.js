@@ -146,12 +146,12 @@ function wikipediaViewer(state) {
     ? currentPage.blocks.find(block => block.id === currentPage.hoveringId)
     : null;
   
-  // Use hovered block's scroll position if available, otherwise use current page scroll position
-  const scrollPosition = hoveredBlock?.scrollPosition ?? currentPage?.wikiScrollPosition ?? 0;
+  // Use hovered block's viewport position if available, otherwise use current page viewport position
+  const viewportPosition = hoveredBlock?.viewportPosition ?? currentPage?.wikiViewportPosition ?? null;
   
   return h("wiki-viewer", {
     page: currentPage?.wikiPage,
-    scrollposition: scrollPosition,
+    viewportposition: viewportPosition ? JSON.stringify(viewportPosition) : null,
     style: {
       height: "100%",
       display: "block",

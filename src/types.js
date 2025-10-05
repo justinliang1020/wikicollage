@@ -8,7 +8,7 @@
  * @property {number} zIndex - Stacking order (higher = front)
  * @property {string} imageSrc - program image
  * @property {string} pageSrc - wikipedia page source
- * @property {number} scrollPosition - scroll position when block was captured
+ * @property {Object|null} viewportPosition - viewport position data when block was captured
  */
 
 /**
@@ -35,7 +35,7 @@
  * @property {any} state - State of app inside this page
  * @property {String} css - CSS string
  * @property {string} wikiPage
- * @property {number} wikiScrollPosition - Current scroll position of wiki viewer
+ * @property {Object|null} wikiViewportPosition - Current viewport position of wiki viewer
  **/
 
 /**

@@ -74,7 +74,7 @@ export const defaultPage = {
   padding: 5px;
 }`,
   wikiPage: "Cat",
-  wikiScrollPosition: 0,
+  wikiViewportPosition: null,
 };
 
 /**

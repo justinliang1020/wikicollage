@@ -96,15 +96,15 @@ export function block(state) {
       }
       console.log(block.pageSrc);
 
-      // Get current scroll position before changing to block's scroll position
+      // Get current viewport position before changing to block's page
       const wikiViewer = document.querySelector('wiki-viewer');
-      const currentScrollPosition = wikiViewer ? wikiViewer.scrollTop : 0;
+      const currentViewportPosition = wikiViewer ? wikiViewer.saveViewportPosition() : null;
       
       return updateCurrentPage(state, {
         hoveringId: block.id,
         cursorStyle: cursorStyle,
         wikiPage: block.pageSrc,
-        wikiScrollPosition: currentScrollPosition,
+        wikiViewportPosition: currentViewportPosition,
       });
     }
 
@@ -116,14 +116,14 @@ export function block(state) {
      function onpointerleave(state, event) {
        event.stopPropagation();
        
-       // Get current scroll position from wiki viewer before clearing hover
+       // Get current viewport position from wiki viewer before clearing hover
        const wikiViewer = document.querySelector('wiki-viewer');
-       const currentScrollPosition = wikiViewer ? wikiViewer.scrollTop : 0;
+       const currentViewportPosition = wikiViewer ? wikiViewer.saveViewportPosition() : null;
        
        return updateCurrentPage(state, {
          hoveringId: null,
          cursorStyle: "default",
-         wikiScrollPosition: currentScrollPosition,
+         wikiViewportPosition: currentViewportPosition,
        });
      }
 
@@ -377,7 +377,7 @@ export function deleteSelectedBlocks(state) {
  * @param {number | null} y - Y position on canvas. If null, uses viewport's center X coordinate
  * @param {number} width - Block width in pixels
  * @param {number} height - Block height in pixels
- * @param {number} scrollPosition - Scroll position when block was captured
+ * @param {Object|null} viewportPosition - Viewport position when block was captured
  * @returns {State} Updated state with new block */
 export function addBlock(
   state,
@@ -387,7 +387,7 @@ export function addBlock(
   y = null,
   width = 200,
   height = 200,
-  scrollPosition = 0,
+  viewportPosition = null,
 ) {
   // If no coordinates provided, use viewport center
   if (x === null || y === null) {
@@ -409,7 +409,7 @@ export function addBlock(
     zIndex: Math.max(...globalBlocks.map((block) => block.zIndex), 0) + 1,
     imageSrc,
     pageSrc,
-    scrollPosition,
+    viewportPosition,
   };
 
   const currentBlocks = getCurrentBlocks(state);
@@ -425,7 +425,7 @@ export function addBlock(
 /**
  * Adds multiple blocks to the state
  * @param {State} state - Current application state
- * @param {Array<{imageSrc: string, pageSrc: string, programState?: Object|null, x?: number|null, y?: number|null, width?: number, height?: number, scrollPosition?: number}>} blockConfigs - Array of block configurations
+ * @param {Array<{imageSrc: string, pageSrc: string, programState?: Object|null, x?: number|null, y?: number|null, width?: number, height?: number, viewportPosition?: Object|null}>} blockConfigs - Array of block configurations
  * @returns {{state: State, blockIds: number[]}} Updated state with new blocks and array of new block IDs
  */
 function addBlocks(state, blockConfigs) {
@@ -445,7 +445,7 @@ function addBlocks(state, blockConfigs) {
       y = null,
       width = 200,
       height = 200,
-      scrollPosition = 0,
+      viewportPosition = null,
     } = config;
 
     //BUG: fix
@@ -457,7 +457,7 @@ function addBlocks(state, blockConfigs) {
       y,
       width,
       height,
-      scrollPosition,
+      viewportPosition,
     );
 
     // Get the ID of the newly added block
@@ -490,7 +490,7 @@ export function pasteClipboardBlocks(state) {
     height: blockData.height,
     imageSrc: blockData.imageSrc,
     pageSrc: blockData.pageSrc,
-    scrollPosition: blockData.scrollPosition,
+    viewportPosition: blockData.viewportPosition,
   }));
 
   const { state: newState, blockIds } = addBlocks(state, blockConfigs);
