@@ -140,18 +140,21 @@ function pageLabels(state) {
  */
 function wikipediaViewer(state) {
   const currentPage = getCurrentPage(state);
-  
+
   // Find the currently hovered block to get its scroll position
-  const hoveredBlock = currentPage?.hoveringId 
-    ? currentPage.blocks.find(block => block.id === currentPage.hoveringId)
+  const hoveredBlock = currentPage?.hoveringId
+    ? currentPage.blocks.find((block) => block.id === currentPage.hoveringId)
     : null;
-  
+
   // Use hovered block's viewport position if available, otherwise use current page viewport position
-  const viewportPosition = hoveredBlock?.viewportPosition ?? currentPage?.wikiViewportPosition ?? null;
-  
+  const viewportPosition =
+    hoveredBlock?.viewportPosition ?? currentPage?.wikiViewportPosition ?? null;
+
   return h("wiki-viewer", {
     page: currentPage?.wikiPage,
-    viewportposition: viewportPosition ? JSON.stringify(viewportPosition) : null,
+    viewportposition: viewportPosition
+      ? JSON.stringify(viewportPosition)
+      : null,
     style: {
       height: "100%",
       display: "block",
