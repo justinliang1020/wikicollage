@@ -71,7 +71,7 @@ class WikiViewer extends HTMLElement {
     }
 
     this.render();
-    
+
     // Apply pending viewport position after content is rendered
     if (this.pendingViewportPosition !== undefined) {
       requestAnimationFrame(() => {
@@ -79,13 +79,13 @@ class WikiViewer extends HTMLElement {
         this.pendingViewportPosition = undefined;
       });
     }
-    
+
     this.dispatchEvent(
       new CustomEvent("page-loaded", {
-        detail: { 
-          page: this.currentPage, 
+        detail: {
+          page: this.currentPage,
           content: this.content,
-          getViewportPosition: () => this.saveViewportPosition()
+          getViewportPosition: () => this.saveViewportPosition(),
         },
       }),
     );
@@ -160,33 +160,36 @@ class WikiViewer extends HTMLElement {
    * @returns {Object|null} Viewport position data
    */
   saveViewportPosition() {
-    const container = this.shadowRoot.querySelector('.content');
+    const container = this.shadowRoot.querySelector(".content");
     if (!container) return null;
-    
-    const elements = container.querySelectorAll('h1, h2, h3, h4, h5, h6, p');
-    
+
+    const elements = container.querySelectorAll("h1, h2, h3, h4, h5, h6, p");
+
     for (const el of elements) {
       const rect = el.getBoundingClientRect();
       const containerRect = this.getBoundingClientRect();
-      
+
       // Check if element is visible in the top portion of the viewport
-      if (rect.top >= containerRect.top && rect.top <= containerRect.top + window.innerHeight * 0.3) {
+      if (
+        rect.top >= containerRect.top &&
+        rect.top <= containerRect.top + window.innerHeight * 0.3
+      ) {
         const selector = this.getElementSelector(el);
         if (selector) {
           return {
-            type: 'element',
+            type: "element",
             selector: selector,
             offsetFromTop: rect.top - containerRect.top,
-            scrollPosition: this.scrollTop // Fallback
+            scrollPosition: this.scrollTop, // Fallback
           };
         }
       }
     }
-    
+
     // Fallback to scroll position if no suitable element found
-    return { 
-      type: 'scroll', 
-      scrollPosition: this.scrollTop 
+    return {
+      type: "scroll",
+      scrollPosition: this.scrollTop,
     };
   }
 
@@ -197,12 +200,12 @@ class WikiViewer extends HTMLElement {
    */
   getElementSelector(element) {
     if (!element) return null;
-    
+
     // Try ID first
     if (element.id) {
       return `#${element.id}`;
     }
-    
+
     // Use tag name + text content for headings
     if (element.tagName.match(/^H[1-6]$/)) {
       const textContent = element.textContent.trim().substring(0, 50);
@@ -210,15 +213,15 @@ class WikiViewer extends HTMLElement {
         return `${element.tagName.toLowerCase()}:contains("${textContent.replace(/"/g, '\\"')}")`;
       }
     }
-    
+
     // For paragraphs, use first 30 characters of text
-    if (element.tagName === 'P') {
+    if (element.tagName === "P") {
       const textContent = element.textContent.trim().substring(0, 30);
       if (textContent) {
         return `p:contains("${textContent.replace(/"/g, '\\"')}")`;
       }
     }
-    
+
     return null;
   }
 
@@ -228,20 +231,22 @@ class WikiViewer extends HTMLElement {
    */
   restoreViewportPosition(viewportPosition) {
     if (!viewportPosition) return;
-    
-    if (viewportPosition.type === 'element' && viewportPosition.selector) {
+
+    if (viewportPosition.type === "element" && viewportPosition.selector) {
       // Try to find element using text content matching since :contains() is not standard CSS
-      const container = this.shadowRoot.querySelector('.content');
+      const container = this.shadowRoot.querySelector(".content");
       if (!container) return;
-      
+
       let targetElement = null;
-      
+
       // Extract text from selector for manual matching
-      const containsMatch = viewportPosition.selector.match(/:contains\("([^"]+)"\)$/);
+      const containsMatch = viewportPosition.selector.match(
+        /:contains\("([^"]+)"\)$/,
+      );
       if (containsMatch) {
         const searchText = containsMatch[1];
-        const tagName = viewportPosition.selector.split(':')[0].toUpperCase();
-        
+        const tagName = viewportPosition.selector.split(":")[0].toUpperCase();
+
         const elements = container.querySelectorAll(tagName);
         for (const el of elements) {
           if (el.textContent.includes(searchText)) {
@@ -253,17 +258,20 @@ class WikiViewer extends HTMLElement {
         // Try direct selector (for IDs)
         targetElement = container.querySelector(viewportPosition.selector);
       }
-      
+
       if (targetElement) {
-        targetElement.scrollIntoView({ behavior: 'instant', block: 'start' });
+        targetElement.scrollIntoView({ behavior: "instant", block: "start" });
         // Adjust for the saved offset
         if (viewportPosition.offsetFromTop) {
-          this.scrollTop = Math.max(0, this.scrollTop - viewportPosition.offsetFromTop);
+          this.scrollTop = Math.max(
+            0,
+            this.scrollTop - viewportPosition.offsetFromTop,
+          );
         }
         return;
       }
     }
-    
+
     // Fallback to scroll position
     if (viewportPosition.scrollPosition !== undefined) {
       this.scrollTop = viewportPosition.scrollPosition;
@@ -274,7 +282,7 @@ class WikiViewer extends HTMLElement {
     // Log current viewport position on every scroll (for debugging)
     this.addEventListener("scroll", (event) => {
       const position = this.saveViewportPosition();
-      console.log('Current viewport position:', position);
+      console.log("Current viewport position:", position);
     });
 
     this.shadowRoot.addEventListener("click", (event) => {
@@ -793,7 +801,7 @@ class WikiViewer extends HTMLElement {
             <button class="navigate-btn">Go</button>
           </div>
         </div>
-        <div class="content${this.loading ? ' loading' : ''}">${this.content}</div>
+        <div class="content${this.loading ? " loading" : ""}">${this.content}</div>
       </div>
     `;
   }
