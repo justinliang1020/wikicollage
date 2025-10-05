@@ -302,6 +302,7 @@ class WikiViewer extends HTMLElement {
         if (newPage) {
           event.preventDefault();
           // console.log("Navigating to wiki page:", newPage);
+          this.scrollTop = 0;
           this.setAttribute("page", newPage);
 
           // Dispatch custom event for external listeners
@@ -320,6 +321,7 @@ class WikiViewer extends HTMLElement {
         const newPage = input.value.trim();
         if (newPage) {
           // console.log("Navigating to wiki page:", newPage);
+          this.scrollTop = 0;
           this.setAttribute("page", newPage);
 
           // Dispatch custom event for external listeners
@@ -341,6 +343,7 @@ class WikiViewer extends HTMLElement {
         const newPage = event.target.value.trim();
         if (newPage) {
           // console.log("Navigating to wiki page:", newPage);
+          this.scrollTop = 0;
           this.setAttribute("page", newPage);
 
           // Dispatch custom event for external listeners
