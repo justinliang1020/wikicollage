@@ -96,10 +96,15 @@ export function block(state) {
       }
       console.log(block.pageSrc);
 
+      // Get current scroll position before changing to block's scroll position
+      const wikiViewer = document.querySelector('wiki-viewer');
+      const currentScrollPosition = wikiViewer ? wikiViewer.scrollTop : 0;
+      
       return updateCurrentPage(state, {
         hoveringId: block.id,
         cursorStyle: cursorStyle,
         wikiPage: block.pageSrc,
+        wikiScrollPosition: currentScrollPosition,
       });
     }
 
@@ -108,13 +113,19 @@ export function block(state) {
      * @param {PointerEvent} event
      * @returns {import("./packages/hyperapp").Dispatchable<State>}
      */
-    function onpointerleave(state, event) {
-      event.stopPropagation();
-      return updateCurrentPage(state, {
-        hoveringId: null,
-        cursorStyle: "default",
-      });
-    }
+     function onpointerleave(state, event) {
+       event.stopPropagation();
+       
+       // Get current scroll position from wiki viewer before clearing hover
+       const wikiViewer = document.querySelector('wiki-viewer');
+       const currentScrollPosition = wikiViewer ? wikiViewer.scrollTop : 0;
+       
+       return updateCurrentPage(state, {
+         hoveringId: null,
+         cursorStyle: "default",
+         wikiScrollPosition: currentScrollPosition,
+       });
+     }
 
     /**
      * @param {State} state

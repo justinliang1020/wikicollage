@@ -73,6 +73,8 @@ export const defaultPage = {
   margin: 0;
   padding: 5px;
 }`,
+  wikiPage: "Cat",
+  wikiScrollPosition: 0,
 };
 
 /**

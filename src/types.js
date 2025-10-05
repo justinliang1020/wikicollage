@@ -35,6 +35,7 @@
  * @property {any} state - State of app inside this page
  * @property {String} css - CSS string
  * @property {string} wikiPage
+ * @property {number} wikiScrollPosition - Current scroll position of wiki viewer
  **/
 
 /**
