@@ -5,33 +5,33 @@
 class WikiViewer extends HTMLElement {
   constructor() {
     super();
-    this.attachShadow({ mode: 'open' });
-    this.currentPage = 'Cat';
-    this.content = '';
+    this.attachShadow({ mode: "open" });
+    this.currentPage = "Cat";
+    this.content = "";
     this.loading = false;
     this.render();
     this.setupEventListeners();
   }
 
   static get observedAttributes() {
-    return ['page', 'content', 'loading'];
+    return ["page", "content", "loading"];
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
     if (oldValue === newValue) return;
-    
+
     switch (name) {
-      case 'page':
-        this.currentPage = newValue || 'Cat';
+      case "page":
+        this.currentPage = newValue || "Cat";
         if (oldValue && oldValue !== newValue) {
           this.fetchWikiPage(this.currentPage);
         }
         break;
-      case 'content':
-        this.content = newValue || '';
+      case "content":
+        this.content = newValue || "";
         break;
-      case 'loading':
-        this.loading = newValue === 'true';
+      case "loading":
+        this.loading = newValue === "true";
         break;
     }
     this.render();
@@ -47,43 +47,85 @@ class WikiViewer extends HTMLElement {
   async fetchWikiPage(page) {
     this.loading = true;
     this.render();
-    
+
     try {
       const response = await fetch(
-        `https://en.wikipedia.org/api/rest_v1/page/html/${encodeURIComponent(page)}`
+        `https://en.wikipedia.org/api/rest_v1/page/html/${encodeURIComponent(page)}`,
       );
       const html = await response.text();
-      this.content = html;
+      this.content = this.processWikipediaContent(html);
       this.loading = false;
     } catch (error) {
-      console.error('Failed to load Wikipedia page:', error);
-      this.content = '<p>Failed to load page.</p>';
+      console.error("Failed to load Wikipedia page:", error);
+      this.content = "<p>Failed to load page.</p>";
       this.loading = false;
     }
-    
+
     this.render();
-    this.dispatchEvent(new CustomEvent('page-loaded', {
-      detail: { page: this.currentPage, content: this.content }
-    }));
+    this.dispatchEvent(
+      new CustomEvent("page-loaded", {
+        detail: { page: this.currentPage, content: this.content },
+      }),
+    );
+  }
+
+  /**
+   * Process Wikipedia HTML content to fix relative URLs
+   * @param {string} html - Raw Wikipedia HTML
+   * @returns {string} Processed HTML with absolute URLs
+   */
+  processWikipediaContent(html) {
+    // Create a temporary DOM to process the content
+    const tempDiv = document.createElement("div");
+    tempDiv.innerHTML = html;
+
+    // Fix image sources
+    const images = tempDiv.querySelectorAll("img");
+    images.forEach((img) => {
+      const src = img.getAttribute("src");
+      if (src && src.startsWith("//")) {
+        // Protocol-relative URLs
+        img.setAttribute("src", "https:" + src);
+        img.setAttribute("srcset", "https:" + src);
+      } else if (src && src.startsWith("/")) {
+        // Relative URLs - these need to be converted to Wikipedia URLs
+        img.setAttribute("src", "https://en.wikipedia.org" + src);
+        img.setAttribute("srcset", "https://en.wikipedia.org" + src);
+      }
+    });
+
+    // Fix link hrefs to be absolute for external links
+    const links = tempDiv.querySelectorAll("a");
+    links.forEach((link) => {
+      const href = link.getAttribute("href");
+      if (href && href.startsWith("/") && !href.startsWith("/wiki/")) {
+        // Non-wiki relative URLs
+        link.setAttribute("href", "https://en.wikipedia.org" + href);
+      }
+    });
+
+    return tempDiv.innerHTML;
   }
 
   setupEventListeners() {
-    this.shadowRoot.addEventListener('click', (event) => {
-      const link = event.target.closest('a');
+    this.shadowRoot.addEventListener("click", (event) => {
+      const link = event.target.closest("a");
       if (!link) return;
-      
-      const href = link.getAttribute('href');
-      
+
+      const href = link.getAttribute("href");
+
       // Match only internal wiki links like /wiki/Dog
-      if (href && href.startsWith('/wiki/')) {
+      if (href && href.startsWith("/wiki/")) {
         event.preventDefault();
-        const newPage = decodeURIComponent(href.replace('/wiki/', ''));
-        this.setAttribute('page', newPage);
-        
+        const newPage = decodeURIComponent(href.replace("/wiki/", ""));
+        this.setAttribute("page", newPage);
+
         // Dispatch custom event for external listeners
-        this.dispatchEvent(new CustomEvent('page-changed', {
-          detail: { page: newPage }
-        }));
+        this.dispatchEvent(
+          new CustomEvent("page-changed", {
+            detail: { page: newPage },
+          }),
+        );
       }
     });
   }
@@ -251,7 +293,7 @@ class WikiViewer extends HTMLElement {
         <div class="header">
           <h1 class="title">Wikipedia Viewer</h1>
           <p class="current-page">Currently viewing: <b>${this.currentPage}</b></p>
-          ${this.loading ? '<p class="loading">Loading...</p>' : ''}
+          ${this.loading ? '<p class="loading">Loading...</p>' : ""}
         </div>
         <div class="content">${this.content}</div>
       </div>
@@ -260,4 +302,5 @@ class WikiViewer extends HTMLElement {
 }
 
 // Register the custom element
-customElements.define('wiki-viewer', WikiViewer);
+customElements.define("wiki-viewer", WikiViewer);
+
