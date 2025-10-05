@@ -8,6 +8,7 @@
  * @property {number} zIndex - Stacking order (higher = front)
  * @property {string} imageSrc - program image
  * @property {string} pageSrc - wikipedia page source
+ * @property {number} scrollPosition - scroll position when block was captured
  */
 
 /**

@@ -14,7 +14,7 @@ class WikiViewer extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ["page", "content", "loading"];
+    return ["page", "content", "loading", "scrollposition"];
   }
 
   attributeChangedCallback(name, oldValue, newValue) {
@@ -32,6 +32,13 @@ class WikiViewer extends HTMLElement {
         break;
       case "loading":
         this.loading = newValue === "true";
+        break;
+      case "scrollposition":
+        const scrollPos = parseInt(newValue) || 0;
+        // Set scroll position after a short delay to ensure content is rendered
+        requestAnimationFrame(() => {
+          this.scrollTop = scrollPos;
+        });
         break;
     }
     this.render();
@@ -134,6 +141,11 @@ class WikiViewer extends HTMLElement {
   }
 
   setupEventListeners() {
+    // Log scroll position on every scroll
+    this.addEventListener("scroll", (event) => {
+      console.log('Current scroll position:', this.scrollTop);
+    });
+
     this.shadowRoot.addEventListener("click", (event) => {
       const link = event.target.closest("a");
       if (link) {

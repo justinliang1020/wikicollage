@@ -96,11 +96,19 @@ export function block(state) {
       }
       console.log(block.pageSrc);
 
-      return updateCurrentPage(state, {
+      const newState = updateCurrentPage(state, {
         hoveringId: block.id,
         cursorStyle: cursorStyle,
         wikiPage: block.pageSrc,
       });
+      
+      // Set the wiki viewer scroll position
+      const wikiViewer = document.querySelector('wiki-viewer');
+      if (wikiViewer && block.scrollPosition !== undefined) {
+        wikiViewer.setAttribute('scrollposition', block.scrollPosition.toString());
+      }
+      
+      return newState;
     }
 
     /**
@@ -366,6 +374,7 @@ export function deleteSelectedBlocks(state) {
  * @param {number | null} y - Y position on canvas. If null, uses viewport's center X coordinate
  * @param {number} width - Block width in pixels
  * @param {number} height - Block height in pixels
+ * @param {number} scrollPosition - Scroll position when block was captured
  * @returns {State} Updated state with new block */
 export function addBlock(
   state,
@@ -375,6 +384,7 @@ export function addBlock(
   y = null,
   width = 200,
   height = 200,
+  scrollPosition = 0,
 ) {
   // If no coordinates provided, use viewport center
   if (x === null || y === null) {
@@ -396,6 +406,7 @@ export function addBlock(
     zIndex: Math.max(...globalBlocks.map((block) => block.zIndex), 0) + 1,
     imageSrc,
     pageSrc,
+    scrollPosition,
   };
 
   const currentBlocks = getCurrentBlocks(state);
@@ -411,7 +422,7 @@ export function addBlock(
 /**
  * Adds multiple blocks to the state
  * @param {State} state - Current application state
- * @param {Array<{imageSrc: string, pageSrc: string, programState?: Object|null, x?: number|null, y?: number|null, width?: number, height?: number}>} blockConfigs - Array of block configurations
+ * @param {Array<{imageSrc: string, pageSrc: string, programState?: Object|null, x?: number|null, y?: number|null, width?: number, height?: number, scrollPosition?: number}>} blockConfigs - Array of block configurations
  * @returns {{state: State, blockIds: number[]}} Updated state with new blocks and array of new block IDs
  */
 function addBlocks(state, blockConfigs) {
@@ -431,6 +442,7 @@ function addBlocks(state, blockConfigs) {
       y = null,
       width = 200,
       height = 200,
+      scrollPosition = 0,
     } = config;
 
     //BUG: fix
@@ -442,6 +454,7 @@ function addBlocks(state, blockConfigs) {
       y,
       width,
       height,
+      scrollPosition,
     );
 
     // Get the ID of the newly added block
@@ -474,6 +487,7 @@ export function pasteClipboardBlocks(state) {
     height: blockData.height,
     imageSrc: blockData.imageSrc,
     pageSrc: blockData.pageSrc,
+    scrollPosition: blockData.scrollPosition,
   }));
 
   const { state: newState, blockIds } = addBlocks(state, blockConfigs);
