@@ -305,15 +305,36 @@ class WikiViewer extends HTMLElement {
           background-color: #0b0080;
         }
         
-        .loading {
-          color: #54595d;
-          font-style: italic;
-          font-size: 14px;
-        }
-        
         .content {
           line-height: 1.6;
           font-size: 14px;
+          position: relative;
+        }
+        
+        .content.loading {
+          opacity: 0.5;
+          pointer-events: none;
+        }
+        
+        .content.loading::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 24px;
+          height: 24px;
+          border: 3px solid #ccc;
+          border-radius: 50%;
+          border-top-color: #0645ad;
+          animation: spin 1s linear infinite;
+          z-index: 10;
+        }
+        
+        @keyframes spin {
+          to {
+            transform: translate(-50%, -50%) rotate(360deg);
+          }
         }
         
         /* Wikipedia content styles */
@@ -644,9 +665,8 @@ class WikiViewer extends HTMLElement {
             <input type="text" class="page-input" value="${this.currentPage}" placeholder="Enter Wikipedia page name">
             <button class="navigate-btn">Go</button>
           </div>
-          ${this.loading ? '<p class="loading">Loading...</p>' : ""}
         </div>
-        <div class="content">${this.content}</div>
+        <div class="content${this.loading ? ' loading' : ''}">${this.content}</div>
       </div>
     `;
   }
