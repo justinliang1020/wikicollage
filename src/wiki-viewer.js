@@ -234,6 +234,10 @@ class WikiViewer extends HTMLElement {
           border-bottom: 3px solid #a2a9b1;
           margin-bottom: 1em;
           padding-bottom: 0.5em;
+          position: sticky;
+          top: 0;
+          background-color: #ffffff;
+          z-index: 100;
         }
         
         .title {
@@ -508,6 +512,7 @@ class WikiViewer extends HTMLElement {
           
           .header {
             border-bottom-color: #30363d;
+            background-color: #0d1117;
           }
           
           .title {
