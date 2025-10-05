@@ -614,7 +614,7 @@ class WikiViewer extends HTMLElement {
       
       <div class="container">
         <div class="header">
-          <h1 class="title">Wikipedia</h1>
+          <h1 class="title">WikiCollage</h1>
           <div class="page-controls">
             <label for="page-input">View page:</label>
             <input type="text" class="page-input" value="${this.currentPage}" placeholder="Enter Wikipedia page name">
