@@ -6,6 +6,7 @@ import {
   deletePage,
   renamePage,
   updateCurrentPage,
+  getCurrentPage,
 } from "./pages.js";
 import { getSelectedBlocks } from "./selection.js";
 import "./ace-editor.js";
@@ -132,6 +133,40 @@ function pageLabels(state) {
 }
 
 /**
+ * Creates the Wikipedia viewer component
+ * @param {State} state - Current application state
+ * @returns {import("hyperapp").ElementVNode<State>} Wikipedia viewer element
+ */
+function wikipediaViewer(state) {
+  return h(
+    "div",
+    {
+      style: {
+        maxWidth: "700px",
+        margin: "0 auto",
+        fontFamily: "sans-serif",
+        height: "100%",
+        overflowY: "auto",
+        padding: "20px",
+      },
+    },
+    [
+      h("h1", {}, text("Wikipedia Viewer")),
+      h("p", {}, [
+        text("Currently viewing: "),
+        h("b", {}, text(state.wikiPage)),
+      ]),
+      state.wikiLoading && h("p", {}, text("Loading...")),
+      h("div", {
+        id: "wiki-content",
+        innerHTML: state.wikiContent,
+        style: { lineHeight: "1.6" },
+      }),
+    ],
+  );
+}
+
+/**
  * Creates the programs panel on the right side
  * @param {State} state - Current application state
  * @returns {import("hyperapp").ElementVNode<State>} Programs panel element
@@ -153,13 +188,7 @@ function rightPanel(state) {
         return state;
       },
     },
-    [
-      h("iframe", {
-        src: "https://en.wikipedia.org/",
-        style: { height: "100%" },
-      }),
-      orderButtons(state),
-    ],
+    [wikipediaViewer(state), orderButtons(state)],
   );
 }
 

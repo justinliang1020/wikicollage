@@ -141,6 +141,9 @@ function initialState() {
     notificationVisible: false,
     editingPageId: null,
     isShiftPressed: false,
+    wikiPage: "Cat",
+    wikiContent: "",
+    wikiLoading: false,
   };
 
   // Set currentPageId to the first page
@@ -257,6 +260,80 @@ const ClipboardMonitor = (dispatch) => {
   return () => clearInterval(interval);
 };
 
+/**
+ * Effect to fetch Wikipedia page content
+ * @param {import("hyperapp").Dispatch<State>} dispatch - Hyperapp dispatch function
+ * @param {string} page - Wikipedia page title to fetch
+ * @returns {void}
+ */
+const FetchWikiPage = (dispatch, page) => {
+  const fetchPage = async () => {
+    try {
+      const response = await fetch(
+        `https://en.wikipedia.org/api/rest_v1/page/html/${encodeURIComponent(page)}`,
+      );
+      const html = await response.text();
+      dispatch(SetWikiContent, { content: html, loading: false });
+    } catch (error) {
+      console.error("Failed to load Wikipedia page:", error);
+      dispatch(SetWikiContent, {
+        content: "<p>Failed to load page.</p>",
+        loading: false,
+      });
+    }
+  };
+  fetchPage();
+};
+
+/**
+ * Action to set loading state and trigger wiki fetch
+ * @param {State} state
+ * @param {string} page
+ * @returns {import("hyperapp").Dispatchable<State>}
+ */
+const FetchWikiPageAction = (state, page) => [
+  { ...state, wikiPage: page, wikiLoading: true },
+  [FetchWikiPage, page],
+];
+
+/**
+ * Action to set Wikipedia content
+ * @param {State} state
+ * @param {{content: string, loading: boolean}} payload
+ * @returns {State}
+ */
+const SetWikiContent = (state, payload) => ({
+  ...state,
+  wikiContent: payload.content,
+  wikiLoading: payload.loading,
+});
+
+/**
+ * Subscription to handle Wikipedia link clicks
+ * @param {import("hyperapp").Dispatch<State>} dispatch - Hyperapp dispatch function
+ * @returns {() => void} Cleanup function
+ */
+const WikiLinkClickSubscription = (dispatch) => {
+  const handleClick = (event) => {
+    const target = /** @type {HTMLElement} */ (event.target);
+    const link = target.closest("a");
+    if (!link) return;
+
+    const container = document.getElementById("wiki-content");
+    if (!container || !container.contains(link)) return;
+
+    const href = link.getAttribute("href");
+    if (href && href.startsWith("/wiki/")) {
+      event.preventDefault();
+      const newPage = decodeURIComponent(href.replace("/wiki/", ""));
+      dispatch(FetchWikiPageAction, newPage);
+    }
+  };
+
+  document.addEventListener("click", handleClick);
+  return () => document.removeEventListener("click", handleClick);
+};
+
 /** @type{import("hyperapp").Action<State> | null} */
 let prevDispatchAction = null;
 /** @type{any} */
@@ -338,7 +415,7 @@ async function initialize() {
   });
 
   app({
-    init: state,
+    init: [state, [FetchWikiPage, state.wikiPage]],
     view: (state) => main(state),
     node: /** @type {Node} */ (document.getElementById("app")),
     subscriptions: (state) => [
@@ -347,6 +424,7 @@ async function initialize() {
       onKeyDown(KeyDown),
       onKeyUp(KeyUp),
       [ClipboardMonitor, {}],
+      [WikiLinkClickSubscription, {}],
     ],
     dispatch: dispatchMiddleware,
   });
