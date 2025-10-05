@@ -144,7 +144,7 @@ function wikipediaViewer(state) {
     style: {
       height: "100%",
       display: "block",
-    }
+    },
   });
 }
 
@@ -163,7 +163,6 @@ function rightPanel(state) {
       },
       style: {
         width: `40%`,
-        overflowY: "auto",
       },
       onpointerdown: (state, event) => {
         event.stopPropagation();
