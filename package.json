@@ -1,6 +1,6 @@
 {
-  "name": "wikicanvas",
-  "productName": "wikicanvas",
+  "name": "wikicollage",
+  "productName": "wikicollage",
   "version": "1.0.0",
   "description": "My Electron application description",
   "main": "src/index.js",
