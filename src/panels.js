@@ -10,6 +10,7 @@ import {
 } from "./pages.js";
 import { getSelectedBlocks } from "./selection.js";
 import "./ace-editor.js";
+import "./wiki-viewer.js";
 
 /**
  * Creates the panels container with both layers panel, programs panel and floating toggle button
@@ -133,37 +134,18 @@ function pageLabels(state) {
 }
 
 /**
- * Creates the Wikipedia viewer component
+ * Creates the Wikipedia viewer web component
  * @param {State} state - Current application state
  * @returns {import("hyperapp").ElementVNode<State>} Wikipedia viewer element
  */
 function wikipediaViewer(state) {
-  return h(
-    "div",
-    {
-      style: {
-        maxWidth: "700px",
-        margin: "0 auto",
-        fontFamily: "sans-serif",
-        height: "100%",
-        overflowY: "auto",
-        padding: "20px",
-      },
-    },
-    [
-      h("h1", {}, text("Wikipedia Viewer")),
-      h("p", {}, [
-        text("Currently viewing: "),
-        h("b", {}, text(state.wikiPage)),
-      ]),
-      state.wikiLoading && h("p", {}, text("Loading...")),
-      h("div", {
-        id: "wiki-content",
-        innerHTML: state.wikiContent,
-        style: { lineHeight: "1.6" },
-      }),
-    ],
-  );
+  return h("wiki-viewer", {
+    page: "Cat",
+    style: {
+      height: "100%",
+      display: "block",
+    }
+  });
 }
 
 /**

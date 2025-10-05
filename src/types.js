@@ -98,9 +98,6 @@
  * @property {boolean} notificationVisible - Whether notification is visible
  * @property {string|null} editingPageId - ID of page currently being renamed
  * @property {boolean} isShiftPressed - Whether shift key is currently pressed
- * @property {string} wikiPage - Current Wikipedia page title
- * @property {string} wikiContent - Current Wikipedia page HTML content
- * @property {boolean} wikiLoading - Whether Wikipedia content is loading
  */
 
 /**
