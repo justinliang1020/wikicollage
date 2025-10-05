@@ -158,18 +158,18 @@ function rightPanel(state) {
       },
     },
     [
-      h(
-        "button",
-        {
-          class: "programs-panel-toggle",
-          onclick: (state) => ({
-            ...state,
-            panelsVisible: !state.panelsVisible,
-          }),
-          title: "Toggle panels visibility",
-        },
-        text("◀"),
-      ),
+      // h(
+      //   "button",
+      //   {
+      //     class: "programs-panel-toggle",
+      //     onclick: (state) => ({
+      //       ...state,
+      //       panelsVisible: !state.panelsVisible,
+      //     }),
+      //     title: "Toggle panels visibility",
+      //   },
+      //   text("◀"),
+      // ),
       // h(
       //   "button",
       //   {
@@ -195,7 +195,7 @@ function rightPanel(state) {
       //   },
       //   text("save"),
       // ),
-      pages(state),
+      // pages(state),
       orderButtons(state),
     ],
   );
