@@ -1,21 +1,60 @@
-# hypercanvas
+# Wiki Collage
 
-visual javascript canvas thing
+An application to create a collage of Wikipedia screenshots with sources.
 
-**WARNING: IN PRE-ALPHA STATE. USE AT YOUR OWN DISCRETION. CONTACT JUSTIN FOR ANYTHING**
+Originally made for [Wiki Game 2025](https://wikigamejam.org/)
 
-## development
+## Getting Started
 
-requires [pnpm](https://pnpm.io/)
+### How to Use
 
-install dependencies
+If you just want to download this, use the github release tab
 
-```sh
-pnpm i
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (version 16 or higher)
+- [pnpm](https://pnpm.io/) package manager
+
+### Installation
+
+Install dependencies:
+
+```bash
+pnpm install
 ```
 
-run app
+### Development
 
-```sh
+Start the application in development mode:
+
+```bash
 pnpm start
 ```
+
+### Building
+
+Package the application:
+
+```bash
+pnpm package
+```
+
+Create distributable packages:
+
+```bash
+pnpm make
+```
+
+## Architecture
+
+- **Frontend**: [HyperApp](https://github.com/jorgebucaran/hyperapp)
+- **Desktop**: Electron
+- **Build System**: Electron Forge
+
+## License
+
+MIT
+
+## Author
+
+Justin Liang (justinliang1020@gmail.com)
