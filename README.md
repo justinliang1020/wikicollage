@@ -4,11 +4,16 @@ An application to create a collage of Wikipedia screenshots with sources.
 
 Originally made for [Wiki Game 2025](https://wikigamejam.org/)
 
-## Getting Started
-
-### How to Use
+## How to Use
 
 If you just want to download this, use the github release tab
+
+Tips:
+
+- auto-saving is currently kinda broken. manually save changes via `cmd+s` or else you will lose your progress on app exit
+- hold "option" key and hover on objects to go into "source mode", to see the sources of screenshots
+
+## Getting Started
 
 ### Prerequisites
 
