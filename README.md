@@ -14,7 +14,7 @@ If you just want to download this, use the github release tab
 
 Tips:
 
-- auto-saving is currently kinda broken. manually save changes via `cmd+s` or else you will lose your progress on app exit
+- it _should_ auto-saving on quit. to be extra safe, manually save changes via `cmd+s`
 - hold "option" key and hover on objects to go into "source mode", to see the sources of screenshots
 
 ## Getting Started
