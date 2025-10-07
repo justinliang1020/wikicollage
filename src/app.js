@@ -293,6 +293,8 @@ let prevDispatchAction = null;
 let prevDispatchPayload = null;
 /** @type{State | null} */
 let prevState = null;
+/** @type{State | null} */
+let currentState = null;
 
 /**
  * For now, i won't think about effects or manual dispatch. Only actions and state
@@ -326,6 +328,7 @@ const dispatchMiddleware = (dispatch) => (action, payload) => {
     prevDispatchPayload = null;
     // @ts-ignore
     prevState = state;
+    currentState = state;
   }
   dispatch(action, payload);
 };
@@ -359,8 +362,8 @@ async function initialize() {
 
   // Listen for quit signal from main process
   //@ts-ignore
-  window.electronAPI.onAppWillQuit(() => {
-    saveApplication(state);
+  window.electronAPI.onAppWillQuit(async () => {
+    await saveApplication(currentState || state);
 
     // Tell main process we're done
     //@ts-ignore
