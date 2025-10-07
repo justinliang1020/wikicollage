@@ -32,6 +32,7 @@ jobs:
         run: pnpm install
 
       - name: Build and package app
+        # FIX: do code signing, this packaging does't actually work
         run: pnpm package
 
       - name: Upload artifacts
@@ -62,4 +63,3 @@ jobs:
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
