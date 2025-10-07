@@ -6,7 +6,7 @@ Originally made for [Wiki Game Jam 2025](https://wikigamejam.org/)
 
 [Video Demo](https://www.youtube.com/watch?v=r1Gs001TN6E)
 
-![wiki collage banner](./assets/banner.png)
+![Wiki collage banner](./assets/banner.png)
 
 ## How to Use
 
